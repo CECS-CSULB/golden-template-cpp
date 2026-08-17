@@ -197,6 +197,17 @@ test command used by continuous integration.
 
 ## Common problems
 
+### CTest reports `1 tests failed out of 1` and `Unable to find executable`
+
+This means CMake configured the test, but the test executable has not been
+compiled. You probably ran `ctest` before building the project. Build it, then
+run the tests again:
+
+```bash
+cmake --build --preset default
+ctest --preset default
+```
+
 ### `VCPKG_ROOT` is empty
 
 Check the variable:

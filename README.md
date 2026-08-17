@@ -1,7 +1,7 @@
-# CECS Golden Template — Python Project with Test Cases
+# CECS Golden Template — C++ Project with Test Cases
 
-A starting point for a CECS course assignment: a small Python package under
-`src/`, a matching `pytest` suite under `tests/`, CI that runs on every push,
+A starting point for a CECS course assignment: a small C++ program under
+`src/`, header files in `include/`, a matching `GTest` suite under `tests/`, CI that runs on every push,
 and a Verification Log the student fills in.
 
 Replace the sample `stats` exercise with your own content. Keep the shape: the
@@ -36,8 +36,8 @@ to change when you make it your own.
 
 | Path | What goes here |
 |---|---|
-| `src/` | Starter code students complete. Importable as a package. |
-| `tests/` | `pytest` suite. The autograder runs this same suite. |
+| `src/` | Assignment starter code. |
+| `tests/` | Testing suite using GTest. The autograder runs this suite. |
 | `docs/` | Assignment instructions for students. |
 | `VERIFICATION-LOG.md` | Required. The student's record of AI assistance. |
 | `.github/workflows/ci.yml` | Runs the suite on every push, so students see pass/fail without waiting on a grade. Two modes; see below. |
