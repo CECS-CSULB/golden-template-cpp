@@ -83,7 +83,7 @@ template started with.
 3. Keep or rewrite `VERIFICATION-LOG.md` as suits your course.
 4. Push. The self-check reports what drifted. **It will not fail your build.**
 5. Wire up grading. See Getting started with the
-   [Web UI](getting-started-web.md) or the [CLI](getting-started.md).
+   [Web UI](classroom-50-setup-web.md) or the [CLI](classroom-50-setup.md).
 
 Run it yourself any time:
 

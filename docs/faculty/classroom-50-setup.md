@@ -8,7 +8,7 @@ By the end you will have a real assignment that students can accept, and you
 will have **proved** it grades correctly rather than assumed it.
 
 > [!TIP]
-> Prefer the browser? Use [Getting started with the Web UI](getting-started-web.md).
+> Prefer the browser? Use [Getting started with the Web UI](classroom-50-setup-web.md).
 >
 > Already know Classroom 50? You want the
 > [CLI Teacher Guide](https://github.com/foundation50/classroom50/wiki/CLI-Teacher-Guide)

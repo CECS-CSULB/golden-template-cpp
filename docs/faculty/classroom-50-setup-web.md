@@ -8,7 +8,7 @@ By the end you will have a real assignment that students can accept, and you
 will have **proved** it grades correctly rather than assumed it.
 
 > [!TIP]
-> Prefer the terminal? Use [Getting started with the CLI](getting-started.md).
+> Prefer the terminal? Use [Getting started with the CLI](classroom-50-setup.md).
 > Already know Classroom 50? You want the upstream
 > [Web Teacher Guide](https://github.com/foundation50/classroom50/wiki/Web-Teacher-Guide)
 > instead. This is the ground-up version.

@@ -4,7 +4,7 @@ How to express "is this submission correct?" with Classroom 50's declarative
 autograding form.
 
 Assumes you've been through
-[Getting started with the Web UI](getting-started-web.md).
+[Getting started with the Web UI](classroom-50-setup-web.md).
 
 > [!TIP]
 > Prefer the terminal, JSON files, or bulk editing? Use
@@ -216,4 +216,4 @@ real teaching decision, not just a technical one.
 > Whatever you wrote, **push a deliberately wrong submission and confirm it
 > comes back red.** A green run is exactly what an autograded assignment with
 > no tests can produce. See
-> [Getting started with the Web UI, step 7](getting-started-web.md#step-7--prove-it-actually-grades).
+> [Getting started with the Web UI, step 7](classroom-50-setup-web.md#step-7--prove-it-actually-grades).

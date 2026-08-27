@@ -1,241 +1,152 @@
-# Student Build Guide
+# [Assignment Title]
 
-This project reads ten integers and prints their mean and median. It uses:
+<!--
+FACULTY: This is the student-facing assignment guide. Replace every
+placeholder in square brackets before distributing the repository. Remove any
+sections that do not apply to your assignment.
+-->
 
-- C++17
-- CMake 3.21 or newer
-- vcpkg for the GoogleTest dependency
-- CTest to run the test suite
+## Overview
 
-You need an internet connection the first time you configure the project because
-vcpkg downloads and builds GoogleTest. These instructions assume that you run
-commands from a terminal and that the repository has already been downloaded.
+<!-- FACULTY: Describe the problem students are solving, why it matters, and
+what they are expected to build. Avoid putting grading-only details here. -->
 
-## macOS setup
+In this assignment, you will [describe the program, library, or system the
+student will implement]. The completed program should [summarize the main
+result or behavior].
 
-### 1. Install the compiler and basic build tools
+This assignment is intended to help you practice:
 
-Apple's Command Line Tools for Xcode include Apple Clang (the C++ compiler),
-Git, Make, the macOS SDK, and other command-line development tools.
+- [Learning objective 1]
+- [Learning objective 2]
+- [Learning objective 3]
 
-Open Terminal and run:
+## What you need to implement
 
-```bash
-xcode-select --install
+<!-- FACULTY: List the files, functions, classes, or other artifacts students
+are responsible for. Keep names and signatures exact. -->
+
+| File or path | Required work |
+|---|---|
+| `[path/to/source-file]` | [Function, class, or feature to implement] |
+| `[path/to/another-file]` | [Function, class, or feature to implement] |
+
+Do not change [function names, signatures, public interfaces, or other
+constraints]. You may create additional helper functions or files if [state
+whether this is allowed].
+
+## Requirements
+
+<!-- FACULTY: State functional requirements and important edge cases. Be
+specific enough that students can test their work locally. -->
+
+Your solution must:
+
+1. [Requirement 1]
+2. [Requirement 2]
+3. [Requirement 3]
+
+Important edge cases include:
+
+- [Edge case 1 and expected behavior]
+- [Edge case 2 and expected behavior]
+- [Edge case 3 and expected behavior]
+
+## Input and output
+
+<!-- FACULTY: Use this section for console programs. For library assignments,
+replace it with the API contract and examples. -->
+
+### Input
+
+[Describe the input format, valid values, number of values, and termination
+conditions.]
+
+### Output
+
+[Describe the required output, including labels, ordering, precision, and
+whether additional output is allowed.]
+
+Example:
+
+```text
+[Example input]
 ```
 
-Complete the installation dialog. See Apple's official
-[Command Line Tools installation guide](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools/)
-for more information.
-
-### 2. Install CMake and supporting packages
-
-Install [Homebrew](https://docs.brew.sh/Installation) if the `brew` command is
-not already available. Then run:
-
-```bash
-brew update
-brew install cmake autoconf automake libtool pkg-config
+```text
+[Expected output]
 ```
 
-macOS provides `curl`, `tar`, `zip`, and `unzip`, which vcpkg uses to download
-and extract source archives. Confirm that all required commands are available:
+## Project layout
 
-```bash
-clang++ --version
-cmake --version
-git --version
-curl --version
-tar --version
-zip -v
-unzip -v
-```
+| Path | Purpose |
+|---|---|
+| `src/` | Starter and implementation source files |
+| `include/` | C++ header files and public interfaces |
+| `tests/` | GoogleTest test cases |
+| `docs/student/setup.md` | C++ and local build instructions |
+| `CMakeLists.txt` | Build and test configuration |
 
-### 3. Install vcpkg
+Read [the build guide](docs/student/setup.md) before configuring the project.
 
-The following commands install vcpkg in your home directory. If `~/vcpkg`
-already exists, use that installation instead of cloning it again.
+## Test cases and grading
 
-```bash
-git clone https://github.com/microsoft/vcpkg.git "$HOME/vcpkg"
-"$HOME/vcpkg/bootstrap-vcpkg.sh" -disableMetrics
-export VCPKG_ROOT="$HOME/vcpkg"
-echo 'export VCPKG_ROOT="$HOME/vcpkg"' >> "$HOME/.zshrc"
-```
+Your solution is checked with automated tests. The public test cases are
+described below.
 
-The `export` command sets the variable for the current terminal. Adding it to
-`.zshrc` makes it available in new Terminal windows. See Microsoft's official
-[vcpkg repository and setup instructions](https://github.com/microsoft/vcpkg).
+<!--
+FACULTY: Replace this table with the tests in tests/. List one row per
+meaningful test case or test group. Do not claim that a test is public if it is
+hidden. If Classroom 50 or another grading system applies different weights,
+make the authoritative weights clear in the course assignment instructions.
+-->
 
-## Windows setup with WSL
+| Test case | What it checks | Input or setup | Expected behavior | Points |
+|---|---|---|---|---:|
+| `[TestName1]` | [Behavior being tested] | [Input or setup] | [Expected result] | [N] |
+| `[TestName2]` | [Behavior being tested] | [Input or setup] | [Expected result] | [N] |
+| `[TestName3]` | [Behavior being tested] | [Input or setup] | [Expected result] | [N] |
+| **Total** |  |  |  | **[Total points]** |
 
-These instructions use Ubuntu inside Windows Subsystem for Linux (WSL). Do not
-enter the Linux setup or build commands in PowerShell; enter them in the Ubuntu
-terminal.
+The tests may check normal inputs, boundary conditions, invalid inputs, and
+whether your implementation preserves required input data. Passing the sample
+input alone is not sufficient; your implementation must satisfy the complete
+contract above.
 
-### 1. Install WSL and Ubuntu
+<!-- FACULTY: Choose and describe the applicable grading workflow. -->
 
-Follow Microsoft's official
-[Install WSL walkthrough](https://learn.microsoft.com/windows/wsl/install).
-For a standard installation, open PowerShell as Administrator and run:
-
-```powershell
-wsl --install -d Ubuntu
-```
-
-Restart Windows if prompted. Open Ubuntu and finish creating your Linux username
-and password before continuing.
-
-### 2. Install the compiler, CMake, and vcpkg prerequisites
-
-In the Ubuntu terminal, run:
-
-```bash
-sudo apt update
-sudo apt install -y build-essential g++ cmake git curl zip unzip tar pkg-config autoconf automake libtool
-```
-
-`build-essential` installs the standard GNU build tools, including Make and the
-GCC/G++ compiler toolchain. The other packages provide CMake, Git, and the
-archive and download utilities required by vcpkg.
-
-Verify the main tools:
-
-```bash
-g++ --version
-cmake --version
-git --version
-zip --version
-unzip -v
-```
-
-### 3. Install vcpkg
-
-Still in the Ubuntu terminal, run:
-
-```bash
-git clone https://github.com/microsoft/vcpkg.git "$HOME/vcpkg"
-"$HOME/vcpkg/bootstrap-vcpkg.sh" -disableMetrics
-export VCPKG_ROOT="$HOME/vcpkg"
-echo 'export VCPKG_ROOT="$HOME/vcpkg"' >> "$HOME/.bashrc"
-```
-
-If `~/vcpkg` already exists, use that installation instead of cloning it again.
-The `.bashrc` entry makes `VCPKG_ROOT` available in future Ubuntu terminals.
-
-For the best WSL filesystem performance, keep the repository in the Linux
-filesystem, such as `~/projects/golden-template-cpp`, rather than under
-`/mnt/c`. Microsoft's
-[WSL development-environment guide](https://learn.microsoft.com/windows/wsl/setup/environment)
-explains this recommendation and other WSL setup practices.
-
-## Build the project
-
-The remaining commands are the same on macOS and WSL. Open a terminal, change to
-the repository directory, and confirm that it contains `CMakeLists.txt`:
-
-```bash
-cd /path/to/this/project
-ls CMakeLists.txt
-```
-
-The repository includes `CMakePresets.json`. Its `default` preset selects a
-Debug build, enables testing, and gets the vcpkg toolchain path from the
-`VCPKG_ROOT` environment variable. Configure the project with:
+Tests can be run locally with:
 
 ```bash
 cmake --preset default
-```
-
-The preset tells CMake to read `vcpkg.json`, so vcpkg installs GoogleTest
-automatically. The first configuration may take several minutes while vcpkg
-builds GoogleTest. After configuration succeeds, compile the project:
-
-```bash
-cmake --build --preset default
-```
-
-## Run the project
-
-Run the executable from the repository root:
-
-```bash
-./build/mean_median
-```
-
-Enter ten integers when prompted. For example:
-
-```text
-Enter 10 integers:
-1 2 3 4 5 6 7 8 9 10
-Mean: 5.5
-Median: 5.5
-```
-
-## Run the tests
-
-CTest runs every GoogleTest case registered by CMake:
-
-```bash
-ctest --preset default
-```
-
-A successful run ends with output similar to:
-
-```text
-100% tests passed, 0 tests failed out of 5
-```
-
-You can also run the GoogleTest executable directly:
-
-```bash
-./build/tests
-```
-
-Use the CTest command for normal development and grading because it matches the
-test command used by continuous integration.
-
-## Common problems
-
-### CTest reports `1 tests failed out of 1` and `Unable to find executable`
-
-This means CMake configured the test, but the test executable has not been
-compiled. You probably ran `ctest` before building the project. Build it, then
-run the tests again:
-
-```bash
 cmake --build --preset default
 ctest --preset default
 ```
 
-### `VCPKG_ROOT` is empty
+Continuous integration runs the build and test suite after you push your work
+to GitHub. If this assignment uses Classroom 50, the Classroom 50 assignment
+settings determine when a submission is graded and how test results are
+weighted.
 
-Check the variable:
+## Submission checklist
 
-```bash
-echo "$VCPKG_ROOT"
-```
+Before submitting, confirm that:
 
-If it prints a blank line, set it again:
+- [ ] Your implementation is complete.
+- [ ] The project builds successfully.
+- [ ] All local tests pass.
+- [ ] Your output follows the required format.
+- [ ] You did not commit build artifacts, secrets, or unrelated files.
+- [ ] You completed any required course verification or AI-use log.
 
-```bash
-export VCPKG_ROOT="$HOME/vcpkg"
-```
+<!-- FACULTY: Add assignment-specific submission instructions, due dates,
+branch/tag requirements, collaboration rules, and AI-use requirements here. -->
 
-### CMake cannot find the compiler, preset, or toolchain file
+## Questions and help
 
-Confirm that the expected files and commands exist:
+<!-- FACULTY: Add the approved help channels and any collaboration boundaries. -->
 
-```bash
-command -v cmake
-command -v c++
-test -f CMakePresets.json && echo "CMake preset found"
-test -f "$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" && echo "vcpkg toolchain found"
-```
-
-If you changed compilers or moved vcpkg after configuring, remove only this
-project's generated `build` directory and configure it again:
-
-```bash
-rm -rf ./build
-```
+For questions, use [the course help channel or forum]. When asking for help,
+include the command you ran, the relevant error message, and a minimal example
+that reproduces the problem. Do not post private tokens or other sensitive
+information.

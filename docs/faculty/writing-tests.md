@@ -3,7 +3,7 @@
 How to express "is this submission correct?" as a declarative `tests` block
 with `gh teacher`.
 
-Assumes you've been through [Getting started with the CLI](getting-started.md).
+Assumes you've been through [Getting started with the CLI](classroom-50-setup.md).
 
 > [!TIP]
 > Prefer the browser? Use
@@ -416,4 +416,4 @@ read as guilt.
 > Whatever you wrote, **push a deliberately wrong submission and confirm it
 > comes back red.** A green run is exactly what an assignment with no tests at
 > all produces.
-> See [Getting started with the CLI, step 7](getting-started.md#step-7--prove-it-actually-grades).
+> See [Getting started with the CLI, step 7](classroom-50-setup.md#step-7--prove-it-actually-grades).
