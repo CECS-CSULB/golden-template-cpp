@@ -5,9 +5,10 @@ point for a different C++ assignment. It focuses on replacing the starter code
 and tests and keeping the local CMake build correct.
 
 The most important idea is that CMake does not discover your source files by
-itself. The [CMakeLists.txt](../../CMakeLists.txt) file declares targets, and
-each target lists the source files it needs. When you replace the example
-assignment, update those target definitions at the same time.
+itself. The root [CMakeLists.txt](../../CMakeLists.txt) and the standalone
+[tests/CMakeLists.txt](../../tests/CMakeLists.txt) declare targets, and each
+target lists the source files it needs. When you replace the example
+assignment, update the appropriate target definitions at the same time.
 
 This guide does not cover course policies, grading configuration, or
 distribution. It covers the code and local build side of the template.
@@ -15,7 +16,7 @@ distribution. It covers the code and local build side of the template.
 ## Start by understanding the current layout
 
 The template currently contains one small library, one demonstration program,
-and one GoogleTest executable:
+and a standalone GoogleTest project:
 
 ~~~text
 include/
@@ -24,8 +25,9 @@ src/
 ├── statistics.cpp            # Library implementation
 └── main.cpp                  # Demonstration program
 tests/
-└── statistics_test.cpp       # GoogleTest cases
-CMakeLists.txt                # Target and build definitions
+├── CMakeLists.txt             # Independent instructor-test project
+└── statistics_test.cpp        # GoogleTest cases
+CMakeLists.txt                # Application/library targets; adds tests locally
 CMakePresets.json             # Local configure, build, and test presets
 vcpkg.json                    # C++ package dependencies
 ~~~
@@ -67,16 +69,7 @@ target_link_libraries(mean_median PRIVATE statistics)
 include(CTest)
 
 if(BUILD_TESTING)
-    find_package(GTest CONFIG REQUIRED)
-
-    add_executable(tests
-        tests/statistics_test.cpp
-    )
-
-    target_link_libraries(tests PRIVATE statistics GTest::gtest_main)
-
-    include(GoogleTest)
-    gtest_discover_tests(tests)
+    add_subdirectory(tests)
 endif()
 ~~~
 
@@ -93,14 +86,15 @@ Each section has a specific role:
 - add_executable creates the mean_median program and lists its source files.
 - target_link_libraries connects the program to the reusable library.
 - include(CTest) enables CTest support and the BUILD_TESTING option.
-- The if(BUILD_TESTING) block creates the test executable, links it to the
-  code under test and GoogleTest, and discovers individual GoogleTest cases.
+- The if(BUILD_TESTING) block adds the standalone tests/ CMake project for a
+  normal root-project build. That project owns the test executable, links it
+  to GoogleTest, and discovers individual GoogleTest cases.
 
 When adapting the template, ask these questions:
 
 1. What library or libraries contain the code students are implementing?
 2. What executable, if any, should students be able to run?
-3. What test executable should CMake build?
+3. What test executable should the standalone tests/ project build?
 4. Which source files belong to each target?
 5. Which include directories and external packages does each target need?
 
@@ -196,38 +190,67 @@ TEST(QueueTest, StartsEmpty) {
 }
 ~~~
 
-List every test source file in the test target:
+The test target belongs in `tests/CMakeLists.txt`, not in the root
+`CMakeLists.txt`. Keep an explicit list of instructor test files and compile
+the student implementation files directly:
 
 ~~~cmake
-add_executable(tests
-    tests/queue_test.cpp
-    tests/node_test.cpp
+cmake_minimum_required(VERSION 3.21)
+
+# Classroom 50 can provide this when it configures tests/ directly.
+if(NOT DEFINED REPO_ROOT)
+    get_filename_component(REPO_ROOT "${CMAKE_CURRENT_LIST_DIR}/.." ABSOLUTE)
+endif()
+file(TO_CMAKE_PATH "${REPO_ROOT}" REPO_ROOT)
+
+if(NOT DEFINED VCPKG_MANIFEST_DIR)
+    set(VCPKG_MANIFEST_DIR "${REPO_ROOT}" CACHE PATH "Project vcpkg manifest directory")
+endif()
+
+project(InstructorTests LANGUAGES CXX)
+
+include(CTest)
+find_package(GTest CONFIG REQUIRED)
+
+add_executable(instructor_tests
+    queue_test.cpp
+    node_test.cpp
+    "${REPO_ROOT}/src/queue.cpp"
+    "${REPO_ROOT}/src/node.cpp"
 )
+
+target_include_directories(instructor_tests PRIVATE "${REPO_ROOT}/include")
+target_link_libraries(instructor_tests PRIVATE GTest::gtest_main)
+target_compile_features(instructor_tests PRIVATE cxx_std_17)
 ~~~
 
-The template links the tests to GTest::gtest_main. That library supplies the
-GoogleTest entry point, so do not add a second main function to the test
-source unless you intentionally replace the standard GoogleTest setup.
+The test project links to `GTest::gtest_main`. That library supplies the
+GoogleTest entry point, so do not add a second main function to the test source
+unless you intentionally replace the standard GoogleTest setup.
 
-Keep the test target inside the if(BUILD_TESTING) block. This allows the
-project to be configured without building tests when that is useful, while
-the supplied default preset enables testing.
+Keep the test target in `tests/CMakeLists.txt`. The root project adds that
+directory only when `BUILD_TESTING` is enabled, while Classroom 50 can configure
+the tests directory directly and pass `REPO_ROOT`.
 
-The final two lines register individual GoogleTest cases with CTest:
+Register individual GoogleTest cases with CTest:
 
 ~~~cmake
 include(GoogleTest)
-gtest_discover_tests(tests)
+gtest_discover_tests(instructor_tests)
 ~~~
 
-Keep them when using GoogleTest. Without test discovery, the test executable
-may build successfully while CTest reports no individual tests.
+Keep these lines when using GoogleTest. Without test discovery, the test
+executable may build successfully while CTest reports no individual tests.
+
+The standalone project should validate the directories it expects before
+calling `project()` and should set `VCPKG_MANIFEST_DIR` before `project()` so
+vcpkg can find the repository manifest when `tests/` is configured directly.
 
 ### 5. Update CMakeLists.txt
 
-After replacing files, update every path and target name in CMakeLists.txt.
-For the common library-plus-tests arrangement, the finished structure looks
-like this:
+After replacing files, update every path and target name in the root
+`CMakeLists.txt` and `tests/CMakeLists.txt`. The root project should build the
+application and add the standalone test project for a normal local build:
 
 ~~~cmake
 cmake_minimum_required(VERSION 3.21)
@@ -248,27 +271,18 @@ target_include_directories(assignment PUBLIC include)
 include(CTest)
 
 if(BUILD_TESTING)
-    find_package(GTest CONFIG REQUIRED)
-
-    add_executable(tests
-        tests/queue_test.cpp
-        tests/node_test.cpp
-    )
-
-    target_link_libraries(tests PRIVATE assignment GTest::gtest_main)
-
-    include(GoogleTest)
-    gtest_discover_tests(tests)
+    add_subdirectory(tests)
 endif()
 ~~~
 
-Do not copy this example unchanged. Remove src/node.cpp or
-tests/node_test.cpp if they do not exist, and add the files your assignment
-actually uses.
+Do not copy this example unchanged. Remove `src/node.cpp` or
+`tests/node_test.cpp` if they do not exist, and add the files your assignment
+actually uses in the appropriate CMake project. The root project should not
+redeclare the instructor test executable.
 
-Prefer explicit source lists such as the examples above. They make the
+Prefer explicit source lists in `tests/CMakeLists.txt`. They make the test
 project's structure visible and prevent an accidentally added file from
-silently changing the build.
+silently changing the grading build.
 
 ### 6. Update dependencies only when necessary
 
@@ -278,16 +292,18 @@ The current [vcpkg.json](../../vcpkg.json) declares GoogleTest:
 {
   "name": "mean-median-demo",
   "version-string": "1.0.0",
+  "builtin-baseline": "e5a1490e1409d175932ef6014519e9ae149ddb7c",
   "dependencies": [
     "gtest"
   ]
 }
 ~~~
 
-Keep gtest if the tests use GoogleTest. Add another package only when the
-assignment genuinely needs it, and update find_package and
-target_link_libraries in CMakeLists.txt to match that package's CMake
-targets.
+Keep the baseline and `gtest` if the tests use GoogleTest. Add another package
+only when the assignment genuinely needs it, and update `find_package` and
+`target_link_libraries` in `tests/CMakeLists.txt` to match that package's CMake
+targets. The baseline pins the vcpkg registry used by both the local and
+standalone test configurations.
 
 If you do not use an external package, remove unused dependencies from
 vcpkg.json. Do not add a dependency merely because it is convenient during
@@ -320,6 +336,19 @@ Run the tests through CTest:
 ctest --preset default
 ~~~
 
+The root build is convenient for local development. Before publishing an
+assignment, also verify that the instructor tests work as an independent
+project, because Classroom 50 can configure `tests/` without trusting the
+student-edited root build files:
+
+~~~bash
+cmake -S tests -B build-tests \
+    -DREPO_ROOT="$PWD" \
+    -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+cmake --build build-tests
+ctest --test-dir build-tests --output-on-failure
+~~~
+
 Run the same sequence after a clean configuration, not only after incremental
 builds. If you renamed or removed targets and CMake appears to retain an old
 target, remove this project's generated build/ directory and run the
@@ -332,6 +361,8 @@ Confirm all of the following before handing the repository to students:
 - Every target has the include directories and libraries it needs.
 - The executable, if any, runs using the documented command.
 - CTest discovers the intended test cases.
+- The standalone `tests/` project configures with `REPO_ROOT` and passes its
+  tests independently of the root `CMakeLists.txt`.
 - At least one test fails when you intentionally introduce a known incorrect
   result.
 - The student build guide contains commands that match the adapted project.
@@ -367,18 +398,32 @@ with target_link_libraries.
 
 Check that:
 
-- include(CTest) appears before the if(BUILD_TESTING) block.
+- `include(CTest)` appears in the active CMake project.
 - BUILD_TESTING is enabled by the active preset.
 - GoogleTest is found with find_package(GTest CONFIG REQUIRED).
-- The test executable links to GTest::gtest_main.
-- include(GoogleTest) and gtest_discover_tests(tests) are present.
+- The standalone test executable links to GTest::gtest_main.
+- `include(GoogleTest)` and `gtest_discover_tests(instructor_tests)` are
+  present in tests/CMakeLists.txt.
+
+### The standalone test project cannot find the student sources
+
+Configure it with the repository root explicitly:
+
+~~~bash
+cmake -S tests -B build-tests -DREPO_ROOT="$PWD" \
+    -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+~~~
+
+The `REPO_ROOT` directory must contain the assignment's `include/` and `src/`
+directories. Keep the `REPO_ROOT` and `VCPKG_MANIFEST_DIR` setup before the
+`project()` call in tests/CMakeLists.txt.
 
 ### CMake cannot find GoogleTest
 
 Check that GoogleTest is listed in vcpkg.json, VCPKG_ROOT points to a working
-vcpkg installation, and the configure command uses the supplied default
-preset. If you changed dependencies, reconfigure so vcpkg can install the
-updated manifest.
+vcpkg installation, and the configure command uses either the supplied default
+preset or the vcpkg toolchain file. If you changed dependencies, reconfigure
+so vcpkg can install the updated manifest.
 
 ### Old files still appear in the build
 
@@ -392,8 +437,10 @@ directory.
 Before distributing an adapted copy, review:
 
 - [ ] STUDENT_README.md describes the actual assignment.
-- [ ] The include/, src/, and tests/ files match that description.
+- [ ] The include/, src/, tests/, and tests/CMakeLists.txt files match that
+      description.
 - [ ] CMakeLists.txt contains no sample target names or sample file paths.
+- [ ] tests/CMakeLists.txt contains no sample target names or sample paths.
 - [ ] Every source file is listed in the correct target.
 - [ ] Public headers are reachable through the target include directories.
 - [ ] Test targets link to the code they test.
@@ -401,6 +448,7 @@ Before distributing an adapted copy, review:
 - [ ] vcpkg.json contains only required dependencies.
 - [ ] CMakePresets.json still matches the documented local build.
 - [ ] A clean configure, build, and test run succeeds.
+- [ ] A clean standalone tests/ configure, build, and test run succeeds.
 - [ ] The student setup guide has been updated for any changed tools or
       commands.
 - [ ] No placeholder assignment names, sample output, or stale file paths
