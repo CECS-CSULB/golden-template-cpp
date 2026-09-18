@@ -21,14 +21,5 @@ target_link_libraries(mean_median PRIVATE statistics)
 include(CTest)
 
 if(BUILD_TESTING)
-    find_package(GTest CONFIG REQUIRED)
-
-    add_executable(tests
-        tests/statistics_test.cpp
-    )
-
-    target_link_libraries(tests PRIVATE statistics GTest::gtest_main)
-
-    include(GoogleTest)
-    gtest_discover_tests(tests)
+    add_subdirectory(tests)
 endif()

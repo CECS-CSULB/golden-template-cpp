@@ -4,11 +4,21 @@ The project uses CMake and vcpkg. GoogleTest is the only vcpkg dependency.
 
 Set `VCPKG_ROOT` to your vcpkg installation, then configure and build:
 
+```bash
+cmake --preset default
+cmake --build --preset default
+ctest --preset default
+```
+
+The grading tests are also a standalone CMake project. To configure them
+without relying on the root `CMakeLists.txt`, run this from the repository root:
+
 ```powershell
-cmake -S . -B build `
+cmake -S tests -B build-tests `
+  -DREPO_ROOT="$PWD" `
   -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake --build build-tests
+ctest --test-dir build-tests --output-on-failure
 ```
 
 Run the demo and enter ten integers when prompted:
